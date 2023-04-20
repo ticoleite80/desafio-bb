@@ -1,0 +1,189 @@
+Docker: ideia de maquina virtual, mas nao eh como uma VM ware (essa precisa instalar, iniciada no boot do servidor, com maior complexidade)
+	pegar uma distro de um sistema operacional e criar uma imgem e vai colocando camadas em cima da imagem
+		maven
+		npm
+		repositorio de imagens docker (podendo ser criado na corporação ou internet)
+
+	aplicação baseada em docker: roda dentro de um container (compila e cria a instancia executando a imagem), vc tem isso dentro do docker com vários containers e para aplicação funcionar vc precisa ajustar a imagem(classe), criando o build 
+
+
+
+
+Docker file
+FROM
+cada comando sendo uma camada
+
+
+Cada POD tem um container, o container que eh gerado a partir de um build de uma imagem em execução (linux ou windows que roda por tras)
+kubernets (Openshift) faz o gerenciamento dos containers (ferramenta que mapeia os containers)
+
+
+1 imagem do nifi
+1 imagem do kafka
+1 imagem do grafana
+
+
+
+
+
+docker imagem ls
+docker-compose -f ./docker-compose.yaml up --build
+
+
+
+
+
+
+***********************************
+
+Conceitos de particionamento, cluster (trabalhar em conjunto, em vários nós) e replicação
+Kafka Broker(nós), topics(cluster, msgs são enviadas pra ca), msgs, produtores e comsumidores (grupos)...
+
+Compactação de mensagens
+
+Central SAFRA - 03001511234 1452,53  0800.6001102 SFF Jr Advogados.
+
+
+Apache Kafka: desenvolvido originalmente dentro do Linkedin (AWS - kafka gerenciado da amazon / Confluent), desenvolvido em Scala e java
+Processamos dados para produzir conhecimento e valor
+	Dimensões de Valor do dado
+		- Tempo (fraude) - criar para proteger a fraude o quanto antes
+		- Relação do dado com ele mesmo ou com outras informações (vendas do dia (menor valor), semana, ano (maior valor) - ver tendencias (crescendo ou diminuindo))
+	Dados possuem diferentes características quanto ao VALOR, VOLUME, VARIEDADE E TEMPO
+
+STREAMMING DE EVENTOS DISTRIBUÍDA PARA PIPELINES DE DADOS DE ALTO DESEMPENHO.
+	- gosta de ouvir musica, e existem varios estilos de musica, ou seja vc eh um consumidor de musicas, vc consome (ouve/compra)
+	- vc pode ser musico, produzir musica (publicar as musicas para serem consumidas/ouvidas)
+	- ou seja, o cmsumidor fica a procura das musicas e o produtor atras de publicar suas musicas
+	Surge o streamming de musica (perodutores publicam as musicas em um unico ligar, nos servicos de etreaming e os consumidores consomem os servicos de um unico lugar(se inscrevem nos serviços) e as mesmas ficam disponiveis a todo momento)
+	- a mesma musica em compartilhada para todos os interessados (consumidores)
+
+
+	folha de pagamento (muitos sistemas de uma empresa precisa dessa informação (conjunto de dados com valor agregado)), contabilidade, auditoria, finanças, RH...
+	pode estar sobrecarregando a folha de pagamento (inicio de um problema)
+
+	Ecommerce gera muitos logs, que são analisados por uma ferramenta (SPARK), ocorre uma promoção - sobrecarga, aumentando a capacidade de um banco de dados (não consegue registrar as informaçoes ou ficar indidponível, os logs se perdem (todos ou parte dos logs) ou precisam ser reprocessados)
+
+	kafka funciona atraves de um sistema onde os publisher (produtores) enviar dados e os subscribers (consumidores)
+
+	as ferramentas produzem os dados para o kafka, e os interessados vão se inscrever para determinados dados (topicos) e vai consumir os dados.
+		- dados publicados uma unica vez
+		- quem tem interesse nos dados assina e consome somente o que interessa
+		- produtores e consumidores ficam desacoplados, sem relação direta, podendo trabalhar em ritmos diferentes
+		- ferramenta pensada na era dos gramdes volumes de dados, com alta disponibilidade, trabalhando com um conjunto de servicos (cluster), em diferentes servidores, com particionamento (processa grandes volumes de dados, aumentar a capacidade, com alta disponibilidade (se um nó falhar, a informação terá acesso a informação em outro nó))
+
+Cluster:
+	Processamento de dados (precisa de CPU, memoria e disco, algum equipamento em algum lugar). A empresa aumenta, precisando aumentar a capacidaade de processamento.
+		- Escalar(aumentar a capacidade) verticalmente (upgrade do equipamento) para processar a qde maior de dados (resolvido temporariamente), existe limite e para aumentar a capacidade, vai preciasr parar a aplicação, comfigurações complexas, inconpatibilidade entre outros
+		- Escalar horizontalmente: adicionar novos qequipamentos, capacidade de escalar fica ilimitada, não precisa parar o sistema (incluir novo nó(servidor) e informar a aplicação desse novo nó disponível), podendo os equipamentos ocmpletamente diferentes (nos sendo servidores comuns, com baixo custo), a aplicação passa a ter alta disponibilidade.
+	REDE de COMPUTADORES para processar os dados (computadores conectados em rede, tem objetivos diferentes, servidor de email, um servidor de armazenamento,...)
+		- Cluster sendo uma rede de computadores com o mesmo objetivo - Kafka trabalha em cluster, tem diversos nós que vão trabalhar com o mesmo objetivo.
+
+Particionamento: 
+	Detran consome transacoes do SERPRO, e esse consumo pode ser tão elevado (devido a qde de chamadas (muitos usuaios acessando a mesma funcionalidade)e aplicações (APP, Portal, GETRAN)) podendo parar o retorno..... uma ideia eh criar cópis de banco de dados para que possam responder a menos consultas, milhoes de regidstros, sem indices.. podendo ter problemas. Daí veio o particionamento, dividindo os dados fisicamente (parte dos dados e nao os dados inteiros), e a aplicacáo vai cpnsultar a particao onde os dados de interesse estão. Pode nõ resolver, pois a partição pode ficar indisponivel por N razões.
+
+Replicação: 
+	Pego as partições dos dados e replico(copias) em diferentes servidores, (mesamreplica no mesmo servidor nao faz sentido, se o servidor falahr, todos os dados ficarão indisponiveis  - REX sendo armários de servidores, podendo todo o REC ficar insisponível, cada armário esta em uma localização diferente). Ideal eh pegar as copias em armarios diferentes, em diferentes locais
+		Master(escrita somente): replica/particao que recebe a escrita dos dados e replica a escrita para outras copias (Slave - responde a leitura e algumas escritas)
+	Cria um sistema com alta disponibilidade
+
+
+	Kafka Broker(intermediario, agente, controller(primeiro broker)) eh o servidor do KAFKA, elemento centralizador. fazem parte de um cluster
+		- CLUSTER KAFKA: cada nó(servidor/equipamento) do cluster pode rodar uma ou mais instancias do kafka broker, mudando a porta, ou diferentes servidores (enderecos IP diferentes)
+		- atribui numeracao sequencial(OFFSET) as mensagens (dados enviados do produtor para o Broker e que o consumidos le do Broker, são chamados de msgs, gravadas em ordem e lidas em ordem, importante para que o consumidos saiba ate onde ele leu (producao de dados imensa))
+		- msgs são salvar em disco (sem consumo em tempo real, cada interface trabalha no seu tempo.
+		- recuperacao de falhas, ler novamente as msgs
+		BOOTSTRAP: aplicacao que serve como um porta de entrada para outras aplicações. Lista de brokers/servidores do kafka, e cada um tem topicos (tabelas, assuntos, particoes), com diferentes partições (consumidor nao precisa saber em qual partição esta os dados que ele precisa).  
+		Conexão ao um Broker eh um conexão ao cluster
+		- Cada boker pode N topicos/assuntos/tabelas, divididos em N particoes
+		- Controla a lilsta dos brokers disponiveis no cluster
+
+		-Particoes do kafka: leaders (principais particoes) e as copias = folowers (seguidores)
+			Tenho um topico (dados de um sensor) - com fator de replicacao 3
+				- divide seus dados em particoes, cada uma tem um lider(particao 0) e 1 ou mais folowers
+				kafka tenta fazer o balanceamento, em maquinas diferentes, hacks sendo considerados	
+				- A particao lieader eh responsável por todas as requisicoes dos produtores e consumidores, receb as escritas e submete as leituras
+				producoer recebe uma lista de leaders e decide para qual partiucao foloewr mandar os dados.
+		- Broker persiste a mensagem e retorna uma confirmacao (importante para varias caracteristicas do kafka)
+		- Followres nao responondem as reuisicoes (ficam disponiveis para assumir a posivcao do lider, caso algo ocorrer), ele somenrte precisa ficar atualizado com o leader. Pode falahr o sincronismo com o liader, se nao tiver atualizado, ele nao eh candidato a ssumir como lider.
+
+		ISR: lista de replicas em sincronia com o leader, para ser escolhido e virar leader. ela se mantem atualizada ?? particoes tem offsets (numero sequenciais as msgs). as replicas solicitam esses ofsets para se manter atualizdas (padrao de 10 segundos). Se a replica requisitou nos ultimos 10 segundos, significa que ela esta atualizada. se a particao nao estiver sincronizada, ela eh removida a lista ISR.
+
+	ZooKeeper: ferramenta opensource de gestão de recusros em sistems distrivuidos (REDUP, KAFKA). num futuro será removido do kafka, tendo somente 1 lider e 0 ou mais folowers. (PLATAFORMA DE GERENCIAMENTO DE RECURSOS PARA SERVIÇOS EM CLUSTER)
+		- um servico do zookeeper fazendo a gestão de um cluster do kafka, ou um cluster de zookeeper fazendo a gerenciamento de um ou mais brokers do kafka
+
+		Topics (tabela de banco de dados conforme o assunto/tema): envia msg/dados para um determinado topic (imutavel, enviou a msg/dado, vc nao consegue mais alterar ele, somente ler os dados registrados)
+			- analisar logs de web sites (muita coisa, logs de acesso, quais paginas, imagens, numero de acessos, origens do acesso, descobrir padroes, como quais paginas foram mais acessadas)
+				Access LOG
+				Error LOG
+				Agent LOG
+				Referrer LOG
+			recebem dados/MSG/Eventos/Registros, onde cada MSG(1 linha de banco de dados) possui uma chave e o conteudo
+				- tem período de retenção ()
+	E como fazer para os dados cheguem ao kafka??
+		1. Console apenas para testes (nos bastidores usa a API) - executa um comando com alguns parametros, criar um topico, se inscrever como consumodor, gerar msg para um determinnado topico, e pode consumir essas msgs.
+		2. API: disponibilizada pelo kafka, em qualquer linguagem (Java, Pytohn...) que tbm nos bastidores usa a API
+		3. Kafka connect: abstracao da API acima citada, sendo utilizada tanto para produtores quanto consumidores (levar dados ou ler dados do kafka, bastando configurar o kafka)
+	Grupo de consumidores que dividem a tarefa de processar determinado topico (esta com um volume muito grande), numero maximo limitado ao numero de particoes (1 consumidor por partição), tendo um coordenador de grupo, atribuindo os consumidores as partições.
+	Garantia de entrega: 
+
+	mais de um grupo de consumidor, eh possivel mais de um consumidor consumindo uma mesma particao			
+
+	Kafka client (desenvolver aplicações que interagem com o kafka, como produtor ou consumidos)
+
+	Kafka connect intermediacao entro produtor e consumidor, sem aplicacao (atraves de configuracao)
+		como produzir e consumir dados numa particao de um topico do kafka??
+
+		opção mais interessante... ja temos conectores prontos, utilizando de forma declarativa, sem escrita de codigo, configurando os connectores, bem mais simples.
+		Podendo usar ele tanto como produtor, quanto consumidor, escalaveis de forma automatica, com tolarancia a falha, balanceamento de carga, com modo stand alone ou distribuido.
+			- Connect source: entro o broker produtor e o kafka
+			- COnnect Sink: entre o kafka e o consumidor
+		. Connect worker: faz connecxoes individuais para o source e para o sink
+		. Pode ser escaldado, adicionando mais workers
+		. E podemos ter o source e o sink no mesmo connect
+
+
+		SMTS simple message transformations
+
+	Kafka Streams
+
+	Kafka SQL
+
+
+1. criando um topico: ./kafka-topics.sh --create --topic desafio-bb --bootstrap-server localhost:29092
+2. produzir msg pra este topico (a cada enter.. uma nova mensagem): ./kafka-console-producer.sh --topic desafio-bb --bootstrap-server localhost:29092 (Abre o console, para terminar)
+3. consumir msg para este topico: ./kafka-console-consumer.sh --topic desafio-bb --from-beginning --bootstrap-server localhost:29092 
+
+
+
+Apacha NIFI: FLUXO DE DADOS CONTINUA
+	Plataforma de ingestao/gravacao.registro de dados, para processar e distribuir (trnasitar dados) entre diferentes sistemas (gravar em bancos, em mensagerias (KAFKA)), de transição dos dados. Gerenciamento e automatizacao do FLUXO de dados, por uma interface web, com programacao baseada em fluxos. Lembra o ETL.
+
+
+	Ecosistema/arquitetura
+		presa a uma JVM (maquina virtual JAVA)
+			1. Servidor WEB: por ele que adentramos no NiFi e monitoramos os eventos que acontecem dentro do produto
+			2. estrutura de fluxos com plugins/
+				Controle Fluxo: gerencia os processos
+				Extensoes: permitem a ligacao e iteracao entre os diferentes sistemas
+			3. repositorios de fluxo, conteudo e procedencia (armazena toda a transicao que ocorre com os dados, para garantir qualidade na transicao, sem perca de dados durante o processo de execucao (Varios status))
+
+	Flow File: eh por ele que os dados passam a ser movidos durante a execucao do fluxo(conteudo: dados do usuario e atributo associados aos dados(pasta)): sao as entradas
+	Processor: modulo java (extensoes com cada um tendo uma finalidade) utilizados para realizar as tarefas dentro do Nifi.
+	Fluxo: utilizado para conectar 2 ou mais processadores/extensoes. usado para transferir os dados de uma fonte (origem) para outra fonte (destino)
+	Conexao: link (kafka) entre os processors, como uma fila que armazena e mantem os dados quando necessário
+	Grupo de processos (conjunto de fluxos nifi, ajudando a gerencias os fluxos e mante-los de forma hierarquica, em niveis agrupados)
+	Repositorio: permite verificar informacoes sobre o FlowFile, armazena informacoes. repositorio de procedencia eh o mais utilizado.
+
+
+docker ps
+docker exec -it b05820053ca9 sh
+cd /bin
+kafka-topics --bootstrap-server localhost:9093 --list
+
+docker exec -it id-of-container sh (entrar no kafka rodando num container)
+./kafka-topics.sh --create --zookeeper zookeeper:2181 --replication-factor 1 -- particions 1 --topic banco
+
+
+http://localhost:9200/fligth/_search?size=1000&pretty=true&q=*:*
+Chave aviator: 1d9424c5946ff1d1af7bb43e1bb908e2
